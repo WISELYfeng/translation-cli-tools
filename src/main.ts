@@ -26,7 +26,7 @@ export const translate = (word) => {
             // 拿到所有的数据切片
             chunks.push(chunk)
         });
-        res.on('end', ()=>{
+        res.on('end', () => {
             type translationResult = {
                 from: string
                 to: string
@@ -38,8 +38,14 @@ export const translate = (word) => {
                 error_msg?: string
             }
             const string = Buffer.concat(chunks).toString()
-            const strObj:translationResult = JSON.parse(string)
-            console.log(strObj.trans_result[0].dst)
+            const strObj: translationResult = JSON.parse(string)
+            if (strObj.error_code) {
+                console.error(strObj.error_msg);
+                process.exit(2)
+            } else {
+                console.log(strObj.trans_result[0].dst)
+                process.exit(0)
+            }
         })
     });
 
