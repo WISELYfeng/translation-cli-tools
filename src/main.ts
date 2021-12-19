@@ -3,15 +3,23 @@ import md5 = require('md5');
 import { appId, appSecret } from './private';
 
 export const translate = (word) => {
+    let from, to
+    if (/[a-zA-z]/.test(word[0])) {
+        from = 'en'
+        to = 'zh'
+    } else {
+        from = 'zh'
+        to = 'en'
+    }
     const salt = Math.random().toString()
     const sign = md5(appId + word + salt + appSecret)
     const query = new URLSearchParams({
         q: word,
-        from: 'en',
-        to: 'zh',
         appid: appId,
-        salt: salt,
-        sign: sign
+        from,
+        to,
+        salt,
+        sign
     })
     const options = {
         hostname: 'fanyi-api.baidu.com',
@@ -39,7 +47,7 @@ export const translate = (word) => {
             }
             const string = Buffer.concat(chunks).toString()
             const strObj: translationResult = JSON.parse(string)
-            if (strObj.error_code) {
+            if (strObj.error_code) { // TODO 错误提示表驱动编程
                 console.error(strObj.error_msg);
                 process.exit(2)
             } else {
